@@ -1,14 +1,295 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DMI SOSMIN - AI Content Planner</title>
-    <link rel="icon" href="https://i.ibb.co.com/HTWzbttQ/favicon-dmi-sosmin.jpg" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMI SOSMIN - AI Content Planner</title>
+  <link rel="icon" href="https://i.ibb.co.com/HTWzbttQ/favicon-dmi-sosmin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+  <div id="app" class="min-h-screen flex flex-col md:flex-row relative overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-emerald-800 flex flex-col border-r border-emerald-900 shadow-xl z-40 transform transition-transform duration-300 md:static md:translate-x-0 -translate-x-full">
+      
+      <!-- Header -->
+      <div class="p-6 bg-emerald-900 border-b border-emerald-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://i.ibb.co.com/gbp3gzpV/logo-dmi-sosmin-kecil.png" alt="DMI SOSMIN Logo" class="w-10 h-10 object-contain drop-shadow">
+          <div>
+            <h1 class="text-white font-bold leading-none uppercase tracking-wider">DMI SOSMIN</h1>
+            <span class="text-emerald-400 text-[10px] font-medium block mt-1">KOTA TANGERANG</span>
+          </div>
+        </div>
+        <button id="closeSidebar" type="button" class="p-1.5 text-emerald-300 hover:text-white rounded-lg md:hidden hover:bg-emerald-800 focus:outline-none" title="Tutup Menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
 
+      <!-- Form -->
+      <form id="contentForm" class="p-6 flex-1 flex flex-col gap-4 overflow-hidden">
+        <div class="space-y-4 overflow-y-auto flex-1 pr-1.5">
+          
+          <!-- Topik Utama -->
+          <label class="block">
+            <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1 block">Topik Utama</span>
+            <input type="text" id="topik" required placeholder="Contoh: Ramadhan..." class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500">
+          </label>
+
+          <!-- Draf Konten Kustom -->
+          <label class="block">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest block">Draf Konten Kustom</span>
+              <span class="text-emerald-400 text-[10px] uppercase font-bold tracking-wider">Opsional</span>
+            </div>
+            <textarea id="kontenKustom" placeholder="Misal: Pengumuman kajian Nuzulul Qur'an tgl 20 Maret jam 8 malam..." rows="3" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500"></textarea>
+          </label>
+
+          <!-- Link Website -->
+          <div class="block">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest block">Link Website Acuan</span>
+              <span class="text-emerald-400 text-[10px] uppercase font-bold tracking-wider">Opsional</span>
+            </div>
+            <div id="linkWebsites" class="space-y-2">
+              <div class="flex gap-2">
+                <div class="relative flex-1">
+                  <input type="url" class="linkInput w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="https://example.com/hikmah...">
+                  <svg class="w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="addLinkBtn" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 mt-1 transition">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>Tambah Sumber Link</span>
+            </button>
+          </div>
+
+          <!-- File Upload -->
+          <div class="block">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest block">Kitab / Ebook / File Teks</span>
+              <span class="text-emerald-400 text-[10px] uppercase font-bold tracking-wider">max 10MB</span>
+            </div>
+            <div id="referenceFiles" class="space-y-2"></div>
+            <label class="w-full bg-emerald-900/50 hover:bg-emerald-950/40 border-2 border-dashed border-emerald-700/65 text-emerald-300 rounded p-3 text-xs flex flex-col items-center justify-center cursor-pointer transition">
+              <svg class="w-5 h-5 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span class="font-semibold text-center leading-none text-[11px]">Tambah File .txt (Referensi)</span>
+              <span class="text-[10px] text-emerald-500/80 text-center">Bisa unggah lebih dari satu file</span>
+              <input type="file" id="fileUpload" accept=".txt" multiple class="hidden">
+            </label>
+          </div>
+
+          <!-- Durasi -->
+          <label class="block">
+            <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1 block">Durasi Plan</span>
+            <div class="flex gap-2">
+              <select id="durasi" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none">
+                <option value="1">1 Hari</option>
+                <option value="7">7 Hari (Mingguan)</option>
+                <option value="15">15 Hari (Setengah Bulan)</option>
+                <option value="30">30 Hari (Bulanan)</option>
+                <option value="custom">Custom...</option>
+              </select>
+              <input type="number" id="durasiCustom" min="1" placeholder="Hari" class="w-24 bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 hidden">
+            </div>
+          </label>
+
+          <!-- Nada Bicara -->
+          <label class="block">
+            <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1 block">Nada Bicara</span>
+            <select id="nadaBicara" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none">
+              <option value="Edukasi Santai">Edukatif & Bijak</option>
+              <option value="Agamis Tegas">Inspiratif</option>
+              <option value="Informatif Singkat">Informasi Pengumuman</option>
+              <option value="Menenangkan">Menenangkan</option>
+            </select>
+          </label>
+
+          <!-- Platform -->
+          <label class="block">
+            <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1 block">Platform</span>
+            <select id="platform" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none">
+              <option value="Instagram">Instagram</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Whatsapp Group">Whatsapp Group</option>
+              <option value="Whatsapp Status">Whatsapp Status</option>
+              <option value="Threads">Threads</option>
+            </select>
+          </label>
+
+          <!-- Aspek Rasio -->
+          <label class="block">
+            <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1 block">Aspek Rasio</span>
+            <select id="aspectRatio" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-sm focus:outline-none">
+              <option value="1:1 (Square)">1:1 (Square)</option>
+              <option value="4:5 (Portrait)">4:5 (Portrait)</option>
+              <option value="9:16 (Story/Reels)">9:16 (Story/Reels)</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold py-3 rounded shadow-lg transition-colors flex items-center justify-center gap-2 mt-auto disabled:opacity-50">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Generate Planner</span>
+        </button>
+
+        <!-- Error Message -->
+        <div id="errorMsg" class="hidden bg-red-500/20 border border-red-500 text-red-200 p-3 rounded text-sm"></div>
+      </form>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-950/40 z-30 md:hidden hidden"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-100 text-slate-900 w-full min-w-0">
+      <!-- Header -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0">
+        <div class="flex items-center gap-2 md:gap-4">
+          <button id="openSidebar" class="p-2 -ml-2 text-slate-600 rounded-lg md:hidden hover:bg-slate-100 focus:outline-none" title="Menu Form">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <h2 class="text-emerald-800 font-bold text-sm md:text-lg">Dashboard Konten</h2>
+          <div class="h-4 w-[1px] bg-slate-300 hidden sm:block"></div>
+          <p class="text-slate-400 text-xs md:text-sm hidden sm:block">Media Center DMI</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="settingsBtn" class="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5 md:gap-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Settings</span>
+          </button>
+          <button id="exportBtn" class="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5 md:gap-2 disabled:opacity-50 transition">
+            <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span class="hidden sm:inline">Export Excel</span>
+            <span class="sm:hidden">Export</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="flex items-center justify-between mb-4 shrink-0">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Generated Queue</h3>
+          <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">
+            <span id="contentCount">0</span> CONTENT READY
+          </span>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400 h-96">
+          <svg class="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <p class="text-lg font-medium">Belum ada konten.</p>
+          <p class="text-sm">Isi form di samping untuk membuat draft otomatis.</p>
+        </div>
+
+        <!-- Content Grid -->
+        <div id="contentGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-4 place-content-start hidden"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200">
+      <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <h3 class="font-bold text-slate-800 text-lg">Pengaturan API Keys</h3>
+        </div>
+        <button id="closeSettings" class="text-slate-400 hover:text-slate-600 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Gemini API Keys</label>
+          <textarea id="geminiKeys" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" rows="3" placeholder="AIzaSy..., AIzaSy... (Pisahkan dengan koma)"></textarea>
+          <p class="text-[10px] text-slate-500 mt-1 mb-2">Gunakan koma untuk memasukkan lebih dari satu kunci (sebagai fallback).</p>
+          <details class="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+            <summary class="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Gemini API Key?</summary>
+            <ol class="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
+              <li>Kunjungi <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" class="text-blue-600 hover:underline font-medium">Google AI Studio</a>.</li>
+              <li>Login menggunakan Akun Google Anda.</li>
+              <li>Klik menu <strong>Get API key</strong> di sebelah kiri atas.</li>
+              <li>Klik tombol biru <strong>Create API key</strong>.</li>
+              <li>Setelah jadi, klik tombol Copy atau salin teks kuncinya lalu tempel ke kolom di atas.</li>
+            </ol>
+          </details>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Groq API Keys (Llama 3)</label>
+          <textarea id="groqKeys" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" rows="3" placeholder="gsk_..., gsk_... (Pisahkan dengan koma)"></textarea>
+          <p class="text-[10px] text-slate-500 mt-1 mb-2">Digunakan sebagai alternatif Tier-3 jika Limit Request Gemini habis.</p>
+          <details class="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+            <summary class="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Groq API Key?</summary>
+            <ol class="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
+              <li>Kunjungi <a href="https://console.groq.com" target="_blank" rel="noreferrer" class="text-blue-600 hover:underline font-medium">Groq Console</a>.</li>
+              <li>Login atau daftar akun baru Anda.</li>
+              <li>Pilih menu <strong>API Keys</strong> di sidebar kiri layar.</li>
+              <li>Klik tombol hitam <strong>Create API Key</strong> di pojok kanan, beri nama (bebas).</li>
+              <li>Salin kuncinya (biasanya diawali <span class="font-mono text-slate-500">gsk_</span>) lalu tempel ke kolom di atas.</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+      <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+        <button id="closeSettingsBtn" class="px-4 py-2 border border-slate-200 text-slate-600 rounded text-sm font-medium hover:bg-slate-50 transition">Batal</button>
+        <button id="saveSettings" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-lg transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Simpan Keys
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas Preview Modal -->
+  <div id="canvasModal" class="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm flex flex-col max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Canvas Preview</h3>
+        <button id="closeCanvas" class="text-slate-400 hover:text-slate-600 transition p-1.5 rounded-full hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <div class="w-full aspect-square bg-emerald-700 rounded shadow-2xl relative flex items-center justify-center mb-6">
+        <canvas id="posterCanvas" class="w-full h-full"></canvas>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Nama Organisasi / Masjid</label>
+          <input type="text" id="orgName" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500" value="DMI KOTA TANGERANG" placeholder="Masukan Nama Organisasi...">
+        </div>
+
+        <label class="w-full py-3 bg-white border border-slate-300 rounded text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors cursor-pointer">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3v-6"/></svg>
+          Upload Logo Custom
+          <input type="file" id="logoUpload" class="hidden" accept="image/png, image/jpeg">
+        </label>
+
+        <button id="downloadPoster" class="w-full py-3 bg-emerald-700 text-white rounded shadow-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-emerald-800 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Unduh Poster (.png)
+        </button>
+
+        <div class="pt-2">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Canvas Options (Warna Identitas)</p>
+          <div class="flex flex-wrap items-center gap-2" id="colorPalette"></div>
+          <div class="mt-2 text-[10px] text-slate-400">
+            HEX: <span class="font-mono font-bold text-slate-600 uppercase" id="hexDisplay">#047857</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/gemini-client.js"></script>
+  <script src="js/canvas-renderer.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</body>
+</html>
