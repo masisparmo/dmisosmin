@@ -14,7 +14,6 @@ let appState = {
   currentPreviewItem: null,
   isLoading: false,
   referenceFiles: [],
-  linkWebsites: [''],
 };
 
 // ============================================
@@ -51,6 +50,7 @@ const hexDisplay = document.getElementById('hexDisplay');
 // Form inputs
 const topikInput = document.getElementById('topik');
 const kontenKustomInput = document.getElementById('kontenKustom');
+const pasteArtikelInput = document.getElementById('pasteArtikel');
 const durasiSelect = document.getElementById('durasi');
 const durasiCustomInput = document.getElementById('durasiCustom');
 const nadaBicaraSelect = document.getElementById('nadaBicara');
@@ -58,8 +58,6 @@ const platformSelect = document.getElementById('platform');
 const aspectRatioSelect = document.getElementById('aspectRatio');
 const fileUploadInput = document.getElementById('fileUpload');
 const referenceFilesDiv = document.getElementById('referenceFiles');
-const linkWebsitesDiv = document.getElementById('linkWebsites');
-const addLinkBtn = document.getElementById('addLinkBtn');
 
 // Canvas renderer instance
 let canvasRenderer = null;
@@ -110,7 +108,6 @@ function initEventListeners() {
 
   // File upload
   fileUploadInput.addEventListener('change', handleFileUpload);
-  addLinkBtn.addEventListener('click', handleAddLink);
 
   // Settings
   settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
@@ -259,59 +256,6 @@ function renderReferenceFiles() {
   referenceFilesDiv.appendChild(container);
 }
 
-function handleAddLink() {
-  appState.linkWebsites.push('');
-  renderLinkWebsites();
-}
-
-function renderLinkWebsites() {
-  linkWebsitesDiv.innerHTML = '';
-  appState.linkWebsites.forEach((link, idx) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'flex gap-2';
-
-    const inputDiv = document.createElement('div');
-    inputDiv.className = 'relative flex-1';
-    const input = document.createElement('input');
-    input.type = 'url';
-    input.className =
-      'linkInput w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500';
-    input.placeholder = 'https://example.com/hikmah...';
-    input.value = link;
-    input.addEventListener('change', (e) => {
-      appState.linkWebsites[idx] = e.target.value;
-    });
-
-    const icon = document.createElement('svg');
-    icon.className = 'w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-2.5';
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('stroke', 'currentColor');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.innerHTML =
-      '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>';
-
-    inputDiv.appendChild(input);
-    inputDiv.appendChild(icon);
-    wrapper.appendChild(inputDiv);
-
-    if (appState.linkWebsites.length > 1) {
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className =
-        'px-2.5 bg-emerald-900/50 hover:bg-red-400/20 text-emerald-400 hover:text-red-400 rounded border border-emerald-700 transition';
-      removeBtn.addEventListener('click', () => {
-        appState.linkWebsites.splice(idx, 1);
-        renderLinkWebsites();
-      });
-      removeBtn.innerHTML =
-        '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
-      wrapper.appendChild(removeBtn);
-    }
-
-    linkWebsitesDiv.appendChild(wrapper);
-  });
-}
-
 // ============================================
 // FORM SUBMISSION & CONTENT GENERATION
 // ============================================
@@ -346,7 +290,7 @@ async function handleGenerate(e) {
       nadaBicara: nadaBicaraSelect.value,
       platform: platformSelect.value,
       aspectRatio: aspectRatioSelect.value,
-      linkWebsite: appState.linkWebsites.filter((l) => l.trim()).join('\n'),
+      linkWebsite: pasteArtikelInput.value.trim(),
       fileContent: appState.referenceFiles
         .map((f) => `[Filename: ${f.name}]\n${f.content}`)
         .join('\n\n---\n\n'),

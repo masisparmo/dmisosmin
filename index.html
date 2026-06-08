@@ -46,25 +46,14 @@
             <textarea id="kontenKustom" placeholder="Misal: Pengumuman kajian Nuzulul Qur'an tgl 20 Maret jam 8 malam..." rows="3" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500"></textarea>
           </label>
 
-          <!-- Link Website -->
-          <div class="block">
+          <!-- Paste Konten Artikel -->
+          <label class="block">
             <div class="flex justify-between items-center mb-1">
-              <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest block">Link Website Acuan</span>
+              <span class="text-emerald-200 text-xs font-bold uppercase tracking-widest block">Paste Konten / Artikel Website</span>
               <span class="text-emerald-400 text-[10px] uppercase font-bold tracking-wider">Opsional</span>
             </div>
-            <div id="linkWebsites" class="space-y-2">
-              <div class="flex gap-2">
-                <div class="relative flex-1">
-                  <input type="url" class="linkInput w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="https://example.com/hikmah...">
-                  <svg class="w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                </div>
-              </div>
-            </div>
-            <button type="button" id="addLinkBtn" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 mt-1 transition">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>Tambah Sumber Link</span>
-            </button>
-          </div>
+            <textarea id="pasteArtikel" placeholder="Paste (salin-tempel) teks artikel panjang dari website di sini agar AI bisa membacanya secara langsung..." rows="4" class="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500"></textarea>
+          </label>
 
           <!-- File Upload -->
           <div class="block">
