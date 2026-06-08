@@ -246,7 +246,7 @@ export default function App() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 w-72 bg-emerald-800 flex flex-col border-r border-emerald-900 shadow-xl z-40 transform transition-transform duration-300 md:static md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-emerald-800 flex flex-col border-r border-emerald-900 shadow-xl z-40 transform transition-transform duration-300 md:static md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 bg-emerald-900 border-b border-emerald-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="https://i.ibb.co.com/gbp3gzpV/logo-dmi-sosmin-kecil.png" alt="DMI SOSMIN Logo" className="w-10 h-10 object-contain drop-shadow" />
@@ -288,7 +288,7 @@ export default function App() {
               <textarea
                 placeholder="Misal: Pengumuman kajian Nuzulul Qur'an tgl 20 Maret jam 8 malam dengan penceramah KH. Ahmad..."
                 rows={3}
-                className="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500/70"
+                className="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500/60"
                 value={kontenKustom}
                 onChange={(e) => setKontenKustom(e.target.value)}
                 disabled={loading}
@@ -307,7 +307,7 @@ export default function App() {
                       <input
                         type="url"
                         placeholder="https://example.com/hikmah..."
-                        className="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500/70"
+                        className="w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-emerald-500/60"
                         value={link}
                         onChange={(e) => handleUpdateLink(index, e.target.value)}
                         disabled={loading}
@@ -367,7 +367,7 @@ export default function App() {
                   </div>
                 )}
                 
-                <label className="w-full bg-emerald-900/50 hover:bg-emerald-950/40 border-2 border-dashed border-emerald-700/65 text-emerald-300 rounded p-3 text-xs flex flex-col items-center justify-center gap-1.5 cursor-pointer transition">
+                <label className="w-full bg-emerald-900/50 hover:bg-emerald-950/40 border-2 border-dashed border-emerald-700/65 text-emerald-300 rounded p-3 text-xs flex flex-col items-center justify-center cursor-pointer transition hover:text-emerald-200 hover:border-emerald-600">
                   <Plus className="w-5 h-5 text-emerald-400/60" />
                   <span className="font-semibold text-center leading-none text-[11px]">Tambah File .txt (Referensi)</span>
                   <span className="text-[10px] text-emerald-500/80 text-center">Bisa unggah lebih dari satu file</span>
@@ -470,7 +470,7 @@ export default function App() {
           <button
             type="submit"
             disabled={loading || !topik}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold py-3 rounded shadow-lg transition-colors flex items-center justify-center gap-2 mt-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-amber-500 hover:bg-amber-400 disabled:hover:bg-amber-500 text-emerald-950 font-bold py-3 rounded shadow-lg transition-colors flex items-center justify-center gap-2 mt-auto disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
             {loading ? "Generate AI..." : "Generate Planner"}
@@ -509,7 +509,7 @@ export default function App() {
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 hidden md:flex items-center gap-1.5 md:gap-2 transition"
+              className="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 hidden md:flex items-center gap-1.5 md:gap-2 transition-colors"
               title="API Key Settings"
             >
               <Settings className="w-4 h-4" /> 
@@ -518,7 +518,7 @@ export default function App() {
             <button 
               onClick={handleExportXLS}
               disabled={plans.length === 0}
-              className="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5 md:gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 md:px-4 md:py-2 border border-slate-200 text-slate-600 rounded text-xs md:text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5 md:gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-3.5 h-3.5 md:w-4 md:h-4" /> 
               <span className="hidden sm:inline">Export Excel (.xlsx)</span>
@@ -584,7 +584,7 @@ export default function App() {
                     <textarea
                       value={item.isiKonten}
                       onChange={(e) => updatePlan(idx, "isiKonten", e.target.value)}
-                      className="text-sm text-slate-800 font-medium leading-relaxed mb-3 w-full border border-slate-100 rounded bg-slate-50/50 p-2 focus:ring-1 focus:ring-amber-500 focus:outline-none min-h-[60px] resize-y"
+                      className="text-sm text-slate-800 font-medium leading-relaxed mb-3 w-full border border-slate-100 rounded bg-slate-50/50 p-2 focus:ring-1 focus:ring-amber-500 focus:outline-none"
                       placeholder="Isi Konten..."
                     />
                   </div>
@@ -663,7 +663,7 @@ export default function App() {
                 </div>
               ))}
             </div>
-          )}
+           )}
 
           {plans.length > 0 && (
             <div className="mt-auto p-4 bg-amber-50 border border-amber-200 rounded flex items-center gap-4 mt-6 shrink-0">
@@ -679,16 +679,14 @@ export default function App() {
         </div>
           
         {/* Canvas Preview Right Panel */}
-          {previewItem && (
-            <CanvasPreviewModal 
-              item={previewItem} 
-              platform={platform}
-              onClose={() => setPreviewItem(null)} 
-            />
-          )}
-        </div>
+        {previewItem && (
+          <CanvasPreviewModal 
+            item={previewItem} 
+            platform={platform}
+            onClose={() => setPreviewItem(null)} 
+          />
+        )}
       </main>
     </div>
   );
 }
-
