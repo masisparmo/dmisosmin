@@ -1,0 +1,8 @@
+{
+  "name": "DMI SOSMIN",
+  "description": "Content planner and poster canvas engine for DMI Kota Tangerang",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
