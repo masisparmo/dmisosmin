@@ -167,74 +167,77 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex font-sans relative overflow-hidden">
       {/* Settings Modal */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in border border-slate-200">
-            <div className="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5 text-slate-600" />
-                <h3 className="font-bold text-slate-800 text-lg">Pengaturan API Keys</h3>
+        <>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40" onClick={() => setIsSettingsOpen(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg border border-slate-200 my-8">
+              <div className="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-slate-600" />
+                  <h3 className="font-bold text-slate-800 text-lg">Pengaturan API Keys</h3>
+                </div>
+                <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600 transition flex-shrink-0">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600 transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Gemini API Keys</label>
-                <textarea
-                  className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                  rows={3}
-                  placeholder="AIzaSy..., AIzaSy... (Pisahkan dengan koma)"
-                  value={geminiKeys}
-                  onChange={(e) => setGeminiKeys(e.target.value)}
-                ></textarea>
-                <p className="text-[10px] text-slate-500 mt-1 mb-2">Gunakan koma untuk memasukkan lebih dari satu kunci (sebagai fallback).</p>
-                <details className="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
-                  <summary className="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Gemini API Key?</summary>
-                  <ol className="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
-                    <li>Kunjungi <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">Google AI Studio</a>.</li>
-                    <li>Login menggunakan Akun Google Anda.</li>
-                    <li>Klik menu <strong>Get API key</strong> di sebelah kiri atas.</li>
-                    <li>Klik tombol biru <strong>Create API key</strong>.</li>
-                    <li>Setelah jadi, klik tombol Copy atau salin teks kuncinya lalu tempel ke kolom di atas.</li>
-                  </ol>
-                </details>
+              <div className="p-6 space-y-5 max-h-96 overflow-y-auto">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Gemini API Keys</label>
+                  <textarea
+                    className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+                    rows={3}
+                    placeholder="AIzaSy..., AIzaSy... (Pisahkan dengan koma)"
+                    value={geminiKeys}
+                    onChange={(e) => setGeminiKeys(e.target.value)}
+                  ></textarea>
+                  <p className="text-[10px] text-slate-500 mt-1 mb-2">Gunakan koma untuk memasukkan lebih dari satu kunci (sebagai fallback).</p>
+                  <details className="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+                    <summary className="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Gemini API Key?</summary>
+                    <ol className="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
+                      <li>Kunjungi <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">Google AI Studio</a>.</li>
+                      <li>Login menggunakan Akun Google Anda.</li>
+                      <li>Klik menu <strong>Get API key</strong> di sebelah kiri atas.</li>
+                      <li>Klik tombol biru <strong>Create API key</strong>.</li>
+                      <li>Setelah jadi, klik tombol Copy atau salin teks kuncinya lalu tempel ke kolom di atas.</li>
+                    </ol>
+                  </details>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Groq API Keys (Llama 3)</label>
+                  <textarea
+                    className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+                    rows={3}
+                    placeholder="gsk_..., gsk_... (Pisahkan dengan koma)"
+                    value={groqKeys}
+                    onChange={(e) => setGroqKeys(e.target.value)}
+                  ></textarea>
+                  <p className="text-[10px] text-slate-500 mt-1 mb-2">Digunakan sebagai alternatif Tier-3 jika Limit Request Gemini habis.</p>
+                  <details className="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+                    <summary className="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Groq API Key?</summary>
+                    <ol className="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
+                      <li>Kunjungi <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">Groq Console</a>.</li>
+                      <li>Login atau daftar akun baru Anda.</li>
+                      <li>Pilih menu <strong>API Keys</strong> di sidebar kiri layar.</li>
+                      <li>Klik tombol hitam <strong>Create API Key</strong> di pojok kanan, beri nama (bebas).</li>
+                      <li>Salin kuncinya (biasanya diawali <span className="font-mono text-slate-500">gsk_</span>) lalu tempel ke kolom di atas.</li>
+                    </ol>
+                  </details>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Groq API Keys (Llama 3)</label>
-                <textarea
-                  className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                  rows={3}
-                  placeholder="gsk_..., gsk_... (Pisahkan dengan koma)"
-                  value={groqKeys}
-                  onChange={(e) => setGroqKeys(e.target.value)}
-                ></textarea>
-                <p className="text-[10px] text-slate-500 mt-1 mb-2">Digunakan sebagai alternatif Tier-3 jika Limit Request Gemini habis.</p>
-                <details className="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
-                  <summary className="cursor-pointer font-semibold text-emerald-600 hover:text-emerald-700">Cara mendapatkan Groq API Key?</summary>
-                  <ol className="list-decimal pl-4 mt-2 space-y-1.5 text-[11px] md:text-xs">
-                    <li>Kunjungi <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">Groq Console</a>.</li>
-                    <li>Login atau daftar akun baru Anda.</li>
-                    <li>Pilih menu <strong>API Keys</strong> di sidebar kiri layar.</li>
-                    <li>Klik tombol hitam <strong>Create API Key</strong> di pojok kanan, beri nama (bebas).</li>
-                    <li>Salin kuncinya (biasanya diawali <span className="font-mono text-slate-500">gsk_</span>) lalu tempel ke kolom di atas.</li>
-                  </ol>
-                </details>
+              <div className="p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center sticky bottom-0 z-10">
+                {settingsSavedMsg ? (
+                  <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1"><Check className="w-4 h-4"/> Tersimpan</span>
+                ) : <span></span>}
+                <button
+                  onClick={handleSaveSettings}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4"/> Simpan Keys
+                </button>
               </div>
-            </div>
-            <div className="p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-              {settingsSavedMsg ? (
-                <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1"><Check className="w-4 h-4"/> Tersimpan</span>
-              ) : <span></span>}
-              <button
-                onClick={handleSaveSettings}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <Save className="w-4 h-4"/> Simpan Keys
-              </button>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Mobile Backdrop Overlay */}
@@ -357,7 +360,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => handleRemoveFile(index)}
-                          className="p-1.5 text-emerald-400 hover:text-red-300 hover:bg-emerald-800 rounded transition animate-fade-in"
+                          className="p-1.5 text-emerald-400 hover:text-red-300 hover:bg-emerald-800 rounded transition animate-fade-in flex-shrink-0"
                           disabled={loading}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
