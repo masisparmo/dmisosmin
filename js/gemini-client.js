@@ -4,15 +4,23 @@
 
 const SYSTEM_INSTRUCTION = `Kamu adalah asisten perencana konten media sosial (Senior Social Media Admin) untuk Dewan Masjid Indonesia (DMI) Kota Tangerang.
 Tugas kamu adalah membuat tabel perencanaan konten berdasarkan topik, durasi, platform sosmed, dan nada bicara yang diminta.
+
+PENTING UNTUK VERIFIKASI DALIL:
+Jika kamu menggunakan ayat Al-Qur'an atau Hadits sebagai isi konten, kamu WAJIB mengisi field "quranRef" atau "haditsRef" agar sistem bisa memverifikasi dan menarik teks asli bahasa arabnya secara otomatis dari API terpercaya.
+- "quranRef": berisi {"surah": nomor_surah, "ayat": nomor_ayat}. Contoh untuk Al-Baqarah ayat 261: {"surah": 2, "ayat": 261}. Jika tidak ada ayat, isi dengan null.
+- "haditsRef": berisi {"perawi": "nama_perawi_dalam_bahasa_inggris", "nomor": "nomor_hadits"}. Contoh untuk Bukhari no 1: {"perawi": "bukhari", "nomor": "1"}. Perawi yang didukung: bukhari, muslim, al-tirmidhi, abu-dawood, ibn-majah, an-nasai. Jika tidak ada hadits, isi dengan null.
+
 Hasilnya WAJIB berformat JSON Array MURNI tanpa markdown/pembungkus apapun, yang strukturnya seperti ini:
 [
   {
     "tanggal": "Hari 1",
     "kategori": "Edukasi Islami",
-    "isiKonten": "Tuliskan SECARA LENGKAP dan NYATA teks kutipan, terjemahan ayat Al-Qur'an, Teks Hadits, atau pemikiran. JANGAN HANYA DESKRIPSI, melainkan TULISKAN TEKS ASLINYA.",
+    "isiKonten": "Tuliskan SECARA LENGKAP pesannya. (Sistem akan otomatis mengganti teks ini dengan teks Arab jika quranRef/haditsRef valid).",
     "caption": "Caption lengkap dengan hashtag. Sesuaikan panjang dan gaya dengan platform target.",
-    "promptGambar": "Prompt dalam Bahasa Indonesia yang SANGAT DETAIL untuk AI Image Generator (seperti Midjourney/Bing/DALL-E).",
-    "formatVisual": "Rekomendasi rasio/ukuran gambar (misal: 1080x1080 untuk IG Feed, 9:16 untuk WA Status)"
+    "promptGambar": "Prompt dalam Bahasa Indonesia yang SANGAT DETAIL untuk AI Image Generator.",
+    "formatVisual": "Rekomendasi rasio/ukuran gambar.",
+    "quranRef": null,
+    "haditsRef": null
   }
 ]
 Jangan tambahkan teks pembuka atau penutup, HANYA JSON array!`;
@@ -87,29 +95,94 @@ PENTING: Set field "formatVisual" SAMA PERSIS dengan nilai Aspek Rasio Visual ya
 
 Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tangerang.`;
 
+    let rawPlans = null;
+
     // Try Gemini API first
     if (this.apiKey) {
       try {
-        const response = await this._callGeminiAPI(userPrompt);
-        return response;
+        rawPlans = await this._callGeminiAPI(userPrompt);
       } catch (err) {
         console.error('Gemini API Error:', err);
       }
     }
 
-    // Try Groq API as fallback
-    if (this.groqKey) {
+    // Try Groq API as fallback if Gemini failed
+    if (!rawPlans && this.groqKey) {
       try {
-        const response = await this._callGroqAPI(userPrompt);
-        return response;
+        rawPlans = await this._callGroqAPI(userPrompt);
       } catch (err) {
         console.error('Groq API Error:', err);
       }
     }
 
-    throw new Error(
-      'Semua API Key gagal menjawab atau limit tercapai. Silakan periksa pengaturan Settings Key Anda.'
-    );
+    if (!rawPlans) {
+      throw new Error(
+        'Semua API Key gagal menjawab atau limit tercapai. Silakan periksa pengaturan Settings Key Anda.'
+      );
+    }
+
+    // Verify and enrich content with actual Quran/Hadith API data
+    const verifiedPlans = await this._verifyAndEnrichPlans(rawPlans);
+    return verifiedPlans;
+  }
+
+  async _verifyAndEnrichPlans(plans) {
+    if (!Array.isArray(plans)) return plans;
+
+    const enrichedPlans = await Promise.all(plans.map(async (plan) => {
+      let extraText = '';
+
+      // Quran Verification
+      if (plan.quranRef && plan.quranRef.surah && plan.quranRef.ayat) {
+        try {
+          const s = plan.quranRef.surah;
+          const a = plan.quranRef.ayat;
+          const res = await fetch(`https://api.alquran.cloud/v1/ayah/${s}:${a}/editions/quran-uthmani,id.indonesian`);
+          if (res.ok) {
+            const data = await res.json();
+            const arabic = data.data[0].text;
+            const indo = data.data[1].text;
+            const surahName = data.data[0].surah.englishName;
+            extraText += `[QS. ${surahName} ${s}:${a}]\n${arabic}\n\nArtinya: "${indo}"\n\n`;
+          }
+        } catch (e) {
+          console.error('Quran API Error:', e);
+        }
+      }
+
+      // Hadith Verification
+      if (plan.haditsRef && plan.haditsRef.perawi && plan.haditsRef.nomor) {
+        try {
+          const p = plan.haditsRef.perawi;
+          const n = plan.haditsRef.nomor;
+          const apiKey = "10$CGd0ukTrbnIqOA2pSmbC6eHcbWziOl5flme5fUhfYz2o0PKUUiWC"; // Free key provided by user
+          const res = await fetch(`https://hadithapi.com/api/hadiths?apiKey=${apiKey}&book=${p}&hadithNumber=${n}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.hadiths && data.hadiths.data && data.hadiths.data.length > 0) {
+              const hadith = data.hadiths.data[0];
+              const arabic = hadith.hadithArabic;
+              const indo = hadith.hadithIndonesian || hadith.hadithEnglish || "(Terjemahan tidak tersedia di API)";
+              const status = hadith.status || "Tidak diketahui statusnya";
+              extraText += `[HR. ${p.toUpperCase()} No. ${n} - Status: ${status}]\n${arabic}\n\nArtinya: "${indo}"\n\n`;
+            } else {
+                extraText += `[Catatan: Referensi HR. ${p} No. ${n} diberikan oleh AI, namun tidak ditemukan di database verifikasi otomatis]\n\n`;
+            }
+          }
+        } catch (e) {
+          console.error('Hadith API Error:', e);
+        }
+      }
+
+      // Prepend verified text to isiKonten if it exists
+      if (extraText) {
+        plan.isiKonten = extraText + plan.isiKonten;
+      }
+
+      return plan;
+    }));
+
+    return enrichedPlans;
   }
 
   async _callGeminiAPI(userPrompt) {
