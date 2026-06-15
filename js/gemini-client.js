@@ -336,6 +336,7 @@ ATURAN DALIL — SANGAT PENTING:
 - Kamu WAJIB menggunakan dalil HANYA dari bank yang disediakan — pilih yang paling relevan dengan konten.
 - DILARANG KERAS membuat atau mengarang referensi Quran/Hadits sendiri yang tidak ada dalam bank.
 - Jika bank dalil tersedia, setiap item konten HARUS menyertakan minimal satu dalil dari bank tersebut.
+- Jika membuat konten untuk LEBIH DARI 1 HARI, pastikan kamu menggunakan DALIL YANG BERBEDA untuk setiap hari. DILARANG KERAS mengulang dalil yang sama berulang-ulang!
 - Sertakan teks Arab dan terjemahannya PERSIS sebagaimana yang diberikan dalam bank — jangan mengubah, menambah, atau mengurangi.
 - Field "quranRef" dan "haditsRef" tidak perlu diisi (isi null) karena teks dalil sudah langsung ada di "isiKonten".
 
@@ -345,8 +346,8 @@ Hasilnya WAJIB berformat JSON Array MURNI tanpa markdown/pembungkus apapun, yang
     "tanggal": "Hari 1",
     "kategori": "Edukasi Islami",
     "isiKonten": "Tuliskan SECARA LENGKAP pesannya, sertakan teks Arab dalil dan terjemahannya di sini.",
-    "caption": "Caption lengkap dengan hashtag. Sesuaikan panjang dan gaya dengan platform target.",
-    "promptGambar": "Prompt dalam Bahasa Indonesia yang SANGAT DETAIL untuk AI Image Generator.",
+    "caption": "Caption lengkap dengan hashtag. WAJIB MENGANDUNG TERJEMAHAN DALILNYA di dalam caption ini. Sesuaikan panjang dan gaya dengan platform target.",
+    "promptGambar": "Prompt dalam Bahasa Indonesia yang SANGAT DETAIL untuk AI Image Generator. WAJIB MENCANTUMKAN TERJEMAHAN DALIL agar teks terjemahan tersebut masuk ke dalam ilustrasi gambar.",
     "formatVisual": "Rekomendasi rasio/ukuran gambar.",
     "quranRef": null,
     "haditsRef": null
