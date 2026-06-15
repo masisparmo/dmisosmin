@@ -26,6 +26,9 @@ const contentForm = document.getElementById('contentForm');
 const openSidebarBtn = document.getElementById('openSidebar');
 const closeSidebarBtn = document.getElementById('closeSidebar');
 const submitBtn = document.getElementById('submitBtn');
+const btnNormal = document.getElementById('btnNormal');
+const btnLoading = document.getElementById('btnLoading');
+const btnLoadingText = document.getElementById('btnLoadingText');
 const errorMsg = document.getElementById('errorMsg');
 const contentGrid = document.getElementById('contentGrid');
 const emptyState = document.getElementById('emptyState');
@@ -46,6 +49,17 @@ const orgNameInput = document.getElementById('orgName');
 const logoUploadInput = document.getElementById('logoUpload');
 const colorPalette = document.getElementById('colorPalette');
 const hexDisplay = document.getElementById('hexDisplay');
+
+// Loading overlay elements
+const loadingOverlay  = document.getElementById('loadingOverlay');
+const progressBar     = document.getElementById('progressBar');
+const loadingSubtitle = document.getElementById('loadingSubtitle');
+const stepEls = [
+  document.getElementById('step1'),
+  document.getElementById('step2'),
+  document.getElementById('step3'),
+  document.getElementById('step4'),
+];
 
 // Form inputs
 const topikInput = document.getElementById('topik');
@@ -257,14 +271,74 @@ function renderReferenceFiles() {
 }
 
 // ============================================
+// LOADING PROGRESS UI
+// ============================================
+
+// Definisi fase proses:
+// step 0: Mengambil Dalil (0% → 30%)
+// step 1: Mengirim ke AI  (30% → 55%)
+// step 2: Memproses       (55% → 90%)
+// step 3: Selesai         (100%)
+
+const PROGRESS_STEPS = [
+  { pct: 15,  label: 'Mengambil dalil dari API Quran & Hadits...', btn: 'Ambil Dalil...' },
+  { pct: 50,  label: 'Mengirimkan data ke AI untuk diproses...', btn: 'Kirim ke AI...' },
+  { pct: 80,  label: 'AI sedang menyusun rencana konten dakwah...', btn: 'AI Memproses...' },
+  { pct: 100, label: 'Konten berhasil dibuat! Menampilkan...', btn: 'Selesai ✓' },
+];
+
+function showLoading() {
+  loadingOverlay.classList.remove('hidden');
+  progressBar.style.width = '0%';
+  loadingSubtitle.textContent = 'Menyiapkan...'
+  stepEls.forEach(s => { s.className = 'text-slate-300 transition-colors duration-300'; });
+  // Tombol
+  btnNormal.classList.add('hidden');
+  btnLoading.classList.remove('hidden');
+  btnLoadingText.textContent = 'Memproses...';
+  submitBtn.disabled = true;
+}
+
+function setProgress(stepIndex) {
+  const step = PROGRESS_STEPS[stepIndex];
+  if (!step) return;
+  // Update bar & subtitle
+  progressBar.style.width = step.pct + '%';
+  loadingSubtitle.textContent = step.label;
+  btnLoadingText.textContent = step.btn;
+  // Aktifkan step indicator
+  stepEls.forEach((s, i) => {
+    if (i <= stepIndex) {
+      s.className = 'text-emerald-600 transition-colors duration-300';
+    } else {
+      s.className = 'text-slate-300 transition-colors duration-300';
+    }
+  });
+}
+
+function hideLoading() {
+  // Tunggu sebentar supaya animasi 100% kelihatan
+  setTimeout(() => {
+    loadingOverlay.classList.add('hidden');
+    progressBar.style.width = '0%';
+    btnNormal.classList.remove('hidden');
+    btnLoading.classList.add('hidden');
+    submitBtn.disabled = false;
+    stepEls.forEach(s => { s.className = 'text-slate-300 transition-colors duration-300'; });
+  }, 600);
+}
+
+// ============================================
 // FORM SUBMISSION & CONTENT GENERATION
 // ============================================
 
 async function handleGenerate(e) {
   e.preventDefault();
   appState.isLoading = true;
-  submitBtn.disabled = true;
   errorMsg.classList.add('hidden');
+
+  showLoading();
+  setProgress(0); // Fase 1: Ambil Dalil
 
   try {
     const topik = topikInput.value.trim();
@@ -296,7 +370,22 @@ async function handleGenerate(e) {
         .join('\n\n---\n\n'),
     };
 
-    const result = await GeminiClient.generateContent(contentData);
+    // Fase 2: Kirim ke AI (dipanggil sesaat sebelum call API)
+    // buildDalilPool ada di dalam generateContent — fase 0 sudah ditampilkan
+    // Kita delay sedikit agar animasi terlihat, lalu naik ke fase 2
+    await new Promise(r => setTimeout(r, 400));
+    setProgress(1); // Fase 2: Kirim ke AI
+
+    // Buat wrapper promise yang update progress saat API call dimulai
+    const generatePromise = GeminiClient.generateContent(contentData);
+
+    // Sambil tunggu AI, tick ke fase 3 setelah ~2 detik
+    const progressTicker = setTimeout(() => setProgress(2), 2000);
+
+    const result = await generatePromise;
+    clearTimeout(progressTicker);
+
+    setProgress(3); // Fase 4: Selesai
 
     if (Array.isArray(result)) {
       appState.contentPlans = result;
@@ -311,7 +400,7 @@ async function handleGenerate(e) {
     errorMsg.classList.remove('hidden');
   } finally {
     appState.isLoading = false;
-    submitBtn.disabled = false;
+    hideLoading();
   }
 }
 
