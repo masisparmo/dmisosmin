@@ -2,8 +2,26 @@
  * Gemini Client - Menangani API calls ke Google Gemini secara langsung dari browser
  */
 
-const SYSTEM_INSTRUCTION = `Kamu adalah asisten perencana konten media sosial (Senior Social Media Admin) untuk Dewan Masjid Indonesia (DMI) Kota Tangerang.
+function getSystemInstruction() {
+  const now = new Date();
+  // Hitung tahun Hijriyah perkiraan (akurat ±1 tahun)
+  const gregorianYear = now.getFullYear();
+  const gregorianMonth = now.getMonth() + 1;
+  const gregorianDay = now.getDate();
+  // Rumus perkiraan konversi Gregorian -> Hijriyah
+  const hijriYear = Math.floor(((gregorianYear - 622) * 365.25) / 354.36) + 1;
+  const tanggalSekarang = `${gregorianDay.toString().padStart(2,'0')}/${gregorianMonth.toString().padStart(2,'0')}/${gregorianYear} Masehi (sekitar ${hijriYear}H)`;
+
+  return `Kamu adalah asisten perencana konten media sosial (Senior Social Media Admin) untuk Dewan Masjid Indonesia (DMI) Kota Tangerang.
 Tugas kamu adalah membuat tabel perencanaan konten berdasarkan topik, durasi, platform sosmed, dan nada bicara yang diminta.
+
+KONTEKS WAKTU SAAT INI:
+Hari ini adalah: ${tanggalSekarang}. Gunakan informasi ini sebagai referensi waktu yang AKURAT.
+
+ATURAN PALING PENTING - WAJIB DIIKUTI:
+1. TOPIK ADALAH HUKUM: Apapun yang disebutkan pengguna sebagai "Topik Utama" adalah KEBENARAN MUTLAK yang tidak boleh diubah, diganti, atau dikoreksi. Jika pengguna menyebut "1448H", maka SEMUA konten WAJIB menggunakan "1448H" - bukan 1445H, 1446H, atau angka lain apapun.
+2. DILARANG KERAS mengganti angka tahun, nama bulan, nama acara, atau detail spesifik apapun yang ada dalam topik pengguna dengan versi yang berbeda.
+3. Konten harus relevan dengan topik yang diminta, bukan berdasarkan asumsi AI tentang momen yang "sedang terjadi".
 
 PENTING UNTUK VERIFIKASI DALIL:
 Jika kamu menggunakan ayat Al-Qur'an atau Hadits sebagai isi konten, kamu WAJIB mengisi field "quranRef" atau "haditsRef" agar sistem bisa memverifikasi dan menarik teks asli bahasa arabnya secara otomatis dari API terpercaya.
@@ -24,6 +42,7 @@ Hasilnya WAJIB berformat JSON Array MURNI tanpa markdown/pembungkus apapun, yang
   }
 ]
 Jangan tambahkan teks pembuka atau penutup, HANYA JSON array!`;
+}
 
 class GeminiClient {
   constructor() {
@@ -84,6 +103,10 @@ Nada Bicara: ${nadaBicara}
 ${instruksiKontenKustom}
 ${instruksiReferensi}
 
+=== PERINGATAN KERAS - WAJIB DIPATUHI ===
+Topik Utama yang diberikan adalah "${topik}". Kamu WAJIB menggunakan frasa ini PERSIS APA ADANYA di semua konten yang kamu buat. DILARANG KERAS mengganti, mengubah, atau "mengoreksi" angka tahun, nama, atau detail apapun yang ada dalam topik tersebut. Jika topik menyebut "1448H", tulis "1448H" - bukan angka lain. Jika topik menyebut "Tahun Baru Hijriyah", maka konten harus tentang Tahun Baru Hijriyah - bukan Ramadan, Idul Fitri, atau momen lainnya.
+=== AKHIR PERINGATAN ===
+
 Instruksi Khusus Platform (${platform}):
 - Jika Instagram: Caption bisa panjang, informatif, banyak hashtag.
 - Jika Facebook: Caption sedang, storytelling, memancing komentar.
@@ -100,7 +123,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
     // Try Gemini API first
     if (this.apiKey) {
       try {
-        rawPlans = await this._callGeminiAPI(userPrompt);
+        rawPlans = await this._callGeminiAPI(userPrompt, getSystemInstruction());
       } catch (err) {
         console.error('Gemini API Error:', err);
       }
@@ -109,7 +132,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
     // Try Groq API as fallback if Gemini failed
     if (!rawPlans && this.groqKey) {
       try {
-        rawPlans = await this._callGroqAPI(userPrompt);
+        rawPlans = await this._callGroqAPI(userPrompt, getSystemInstruction());
       } catch (err) {
         console.error('Groq API Error:', err);
       }
@@ -185,7 +208,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
     return enrichedPlans;
   }
 
-  async _callGeminiAPI(userPrompt) {
+  async _callGeminiAPI(userPrompt, systemInstruction) {
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + this.apiKey, {
       method: 'POST',
       headers: {
@@ -204,7 +227,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
         systemInstruction: {
           parts: [
             {
-              text: SYSTEM_INSTRUCTION,
+              text: systemInstruction,
             },
           ],
         },
@@ -234,7 +257,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
     throw new Error('Invalid Gemini response format');
   }
 
-  async _callGroqAPI(userPrompt) {
+  async _callGroqAPI(userPrompt, systemInstruction) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -244,7 +267,7 @@ Pastikan konten relevan untuk kegiatan, edukasi, dan dakwah masjid di Kota Tange
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTION },
+          { role: 'system', content: systemInstruction },
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.7,
