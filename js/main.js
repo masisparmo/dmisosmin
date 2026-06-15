@@ -14,7 +14,6 @@ let appState = {
   currentPreviewItem: null,
   isLoading: false,
   referenceFiles: [],
-  linkWebsites: [''],
 };
 
 // ============================================
@@ -27,6 +26,9 @@ const contentForm = document.getElementById('contentForm');
 const openSidebarBtn = document.getElementById('openSidebar');
 const closeSidebarBtn = document.getElementById('closeSidebar');
 const submitBtn = document.getElementById('submitBtn');
+const btnNormal = document.getElementById('btnNormal');
+const btnLoading = document.getElementById('btnLoading');
+const btnLoadingText = document.getElementById('btnLoadingText');
 const errorMsg = document.getElementById('errorMsg');
 const contentGrid = document.getElementById('contentGrid');
 const emptyState = document.getElementById('emptyState');
@@ -48,9 +50,21 @@ const logoUploadInput = document.getElementById('logoUpload');
 const colorPalette = document.getElementById('colorPalette');
 const hexDisplay = document.getElementById('hexDisplay');
 
+// Loading overlay elements
+const loadingOverlay  = document.getElementById('loadingOverlay');
+const progressBar     = document.getElementById('progressBar');
+const loadingSubtitle = document.getElementById('loadingSubtitle');
+const stepEls = [
+  document.getElementById('step1'),
+  document.getElementById('step2'),
+  document.getElementById('step3'),
+  document.getElementById('step4'),
+];
+
 // Form inputs
 const topikInput = document.getElementById('topik');
 const kontenKustomInput = document.getElementById('kontenKustom');
+const pasteArtikelInput = document.getElementById('pasteArtikel');
 const durasiSelect = document.getElementById('durasi');
 const durasiCustomInput = document.getElementById('durasiCustom');
 const nadaBicaraSelect = document.getElementById('nadaBicara');
@@ -58,8 +72,6 @@ const platformSelect = document.getElementById('platform');
 const aspectRatioSelect = document.getElementById('aspectRatio');
 const fileUploadInput = document.getElementById('fileUpload');
 const referenceFilesDiv = document.getElementById('referenceFiles');
-const linkWebsitesDiv = document.getElementById('linkWebsites');
-const addLinkBtn = document.getElementById('addLinkBtn');
 
 // Canvas renderer instance
 let canvasRenderer = null;
@@ -110,7 +122,6 @@ function initEventListeners() {
 
   // File upload
   fileUploadInput.addEventListener('change', handleFileUpload);
-  addLinkBtn.addEventListener('click', handleAddLink);
 
   // Settings
   settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
@@ -259,57 +270,62 @@ function renderReferenceFiles() {
   referenceFilesDiv.appendChild(container);
 }
 
-function handleAddLink() {
-  appState.linkWebsites.push('');
-  renderLinkWebsites();
+// ============================================
+// LOADING PROGRESS UI
+// ============================================
+
+// Definisi fase proses:
+// step 0: Mengambil Dalil (0% → 30%)
+// step 1: Mengirim ke AI  (30% → 55%)
+// step 2: Memproses       (55% → 90%)
+// step 3: Selesai         (100%)
+
+const PROGRESS_STEPS = [
+  { pct: 15,  label: 'Mengambil dalil dari API Quran & Hadits...', btn: 'Ambil Dalil...' },
+  { pct: 50,  label: 'Mengirimkan data ke AI untuk diproses...', btn: 'Kirim ke AI...' },
+  { pct: 80,  label: 'AI sedang menyusun rencana konten dakwah...', btn: 'AI Memproses...' },
+  { pct: 100, label: 'Konten berhasil dibuat! Menampilkan...', btn: 'Selesai ✓' },
+];
+
+function showLoading() {
+  loadingOverlay.classList.remove('hidden');
+  progressBar.style.width = '0%';
+  loadingSubtitle.textContent = 'Menyiapkan...'
+  stepEls.forEach(s => { s.className = 'text-slate-300 transition-colors duration-300'; });
+  // Tombol
+  btnNormal.classList.add('hidden');
+  btnLoading.classList.remove('hidden');
+  btnLoadingText.textContent = 'Memproses...';
+  submitBtn.disabled = true;
 }
 
-function renderLinkWebsites() {
-  linkWebsitesDiv.innerHTML = '';
-  appState.linkWebsites.forEach((link, idx) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'flex gap-2';
-
-    const inputDiv = document.createElement('div');
-    inputDiv.className = 'relative flex-1';
-    const input = document.createElement('input');
-    input.type = 'url';
-    input.className =
-      'linkInput w-full bg-emerald-900/50 border border-emerald-700 text-white rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500';
-    input.placeholder = 'https://example.com/hikmah...';
-    input.value = link;
-    input.addEventListener('change', (e) => {
-      appState.linkWebsites[idx] = e.target.value;
-    });
-
-    const icon = document.createElement('svg');
-    icon.className = 'w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-2.5';
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('stroke', 'currentColor');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.innerHTML =
-      '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>';
-
-    inputDiv.appendChild(input);
-    inputDiv.appendChild(icon);
-    wrapper.appendChild(inputDiv);
-
-    if (appState.linkWebsites.length > 1) {
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className =
-        'px-2.5 bg-emerald-900/50 hover:bg-red-400/20 text-emerald-400 hover:text-red-400 rounded border border-emerald-700 transition';
-      removeBtn.addEventListener('click', () => {
-        appState.linkWebsites.splice(idx, 1);
-        renderLinkWebsites();
-      });
-      removeBtn.innerHTML =
-        '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
-      wrapper.appendChild(removeBtn);
+function setProgress(stepIndex) {
+  const step = PROGRESS_STEPS[stepIndex];
+  if (!step) return;
+  // Update bar & subtitle
+  progressBar.style.width = step.pct + '%';
+  loadingSubtitle.textContent = step.label;
+  btnLoadingText.textContent = step.btn;
+  // Aktifkan step indicator
+  stepEls.forEach((s, i) => {
+    if (i <= stepIndex) {
+      s.className = 'text-emerald-600 transition-colors duration-300';
+    } else {
+      s.className = 'text-slate-300 transition-colors duration-300';
     }
-
-    linkWebsitesDiv.appendChild(wrapper);
   });
+}
+
+function hideLoading() {
+  // Tunggu sebentar supaya animasi 100% kelihatan
+  setTimeout(() => {
+    loadingOverlay.classList.add('hidden');
+    progressBar.style.width = '0%';
+    btnNormal.classList.remove('hidden');
+    btnLoading.classList.add('hidden');
+    submitBtn.disabled = false;
+    stepEls.forEach(s => { s.className = 'text-slate-300 transition-colors duration-300'; });
+  }, 600);
 }
 
 // ============================================
@@ -319,8 +335,10 @@ function renderLinkWebsites() {
 async function handleGenerate(e) {
   e.preventDefault();
   appState.isLoading = true;
-  submitBtn.disabled = true;
   errorMsg.classList.add('hidden');
+
+  showLoading();
+  setProgress(0); // Fase 1: Ambil Dalil
 
   try {
     const topik = topikInput.value.trim();
@@ -346,13 +364,28 @@ async function handleGenerate(e) {
       nadaBicara: nadaBicaraSelect.value,
       platform: platformSelect.value,
       aspectRatio: aspectRatioSelect.value,
-      linkWebsite: appState.linkWebsites.filter((l) => l.trim()).join('\n'),
+      linkWebsite: pasteArtikelInput.value.trim(),
       fileContent: appState.referenceFiles
         .map((f) => `[Filename: ${f.name}]\n${f.content}`)
         .join('\n\n---\n\n'),
     };
 
-    const result = await GeminiClient.generateContent(contentData);
+    // Fase 2: Kirim ke AI (dipanggil sesaat sebelum call API)
+    // buildDalilPool ada di dalam generateContent — fase 0 sudah ditampilkan
+    // Kita delay sedikit agar animasi terlihat, lalu naik ke fase 2
+    await new Promise(r => setTimeout(r, 400));
+    setProgress(1); // Fase 2: Kirim ke AI
+
+    // Buat wrapper promise yang update progress saat API call dimulai
+    const generatePromise = GeminiClient.generateContent(contentData);
+
+    // Sambil tunggu AI, tick ke fase 3 setelah ~2 detik
+    const progressTicker = setTimeout(() => setProgress(2), 2000);
+
+    const result = await generatePromise;
+    clearTimeout(progressTicker);
+
+    setProgress(3); // Fase 4: Selesai
 
     if (Array.isArray(result)) {
       appState.contentPlans = result;
@@ -367,7 +400,7 @@ async function handleGenerate(e) {
     errorMsg.classList.remove('hidden');
   } finally {
     appState.isLoading = false;
-    submitBtn.disabled = false;
+    hideLoading();
   }
 }
 
